@@ -2,12 +2,16 @@ package controller
 
 import (
 	"context"
+	"errors"
+	"log"
 	"net/http"
+	"strconv"
 
 	"go-practice/model"
 	"go-practice/model/data/input"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type BoardController struct {
@@ -46,5 +50,29 @@ func (c *BoardController) GetBoard(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"boards": boards})
+
+}
+
+func (c *BoardController) DeleteBoard(ctx *gin.Context) {
+	boardIDParam := ctx.Param("boardID")
+	log.Println(boardIDParam)
+	boardID, err := strconv.ParseUint(boardIDParam, 10, 64)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid board ID"})
+		return
+	}
+
+	err = c.boardUseCase.DeleteBoard(context.Background(), boardID)
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			ctx.JSON(http.StatusNotFound, gin.H{"error": "Board not found"})
+		} else {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete board"})
+		}
+		return
+	}
+
+	ctx.JSON(http.StatusNoContent, gin.H{})
 
 }

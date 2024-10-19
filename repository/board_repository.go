@@ -27,3 +27,15 @@ func (r *BoardRepository) FindAllBoard(ctx context.Context) ([]model.Board, erro
 	result := r.db.WithContext(ctx).Find(&boards)
 	return boards, result.Error
 }
+
+func (r *BoardRepository) DeleteBoard(ctx context.Context, boardId uint64) error {
+	var board model.Board
+	result := r.db.WithContext(ctx).Delete(&board, boardId)
+
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+
+	return result.Error
+
+}

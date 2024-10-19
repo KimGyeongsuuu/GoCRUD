@@ -30,3 +30,7 @@ func (service *BoardService) CreateBoard(ctx context.Context, input *input.Creat
 func (service *BoardService) GetBoard(ctx context.Context) ([]model.Board, error) {
 	return service.boardRepo.FindAllBoard(ctx)
 }
+
+func (service *BoardService) DeleteBoard(ctx context.Context, boardId uint64) error {
+	return service.boardRepo.DeleteBoard(ctx, boardId)
+}
