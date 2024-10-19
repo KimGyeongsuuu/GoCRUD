@@ -3,7 +3,6 @@ package controller
 import (
 	"context"
 	"errors"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -25,7 +24,7 @@ func NewBoardController(boardUseCase model.BoardUseCase) *BoardController {
 }
 
 func (c *BoardController) CreateBoard(ctx *gin.Context) {
-	var input input.CreateBoardInput
+	var input input.BoardInput
 
 	if err := ctx.ShouldBindJSON(&input); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
@@ -55,7 +54,6 @@ func (c *BoardController) GetBoard(ctx *gin.Context) {
 
 func (c *BoardController) DeleteBoard(ctx *gin.Context) {
 	boardIDParam := ctx.Param("boardID")
-	log.Println(boardIDParam)
 	boardID, err := strconv.ParseUint(boardIDParam, 10, 64)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid board ID"})
@@ -74,5 +72,29 @@ func (c *BoardController) DeleteBoard(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusNoContent, gin.H{})
+
+}
+
+func (c *BoardController) UpdateBoard(ctx *gin.Context) {
+	var input input.BoardInput
+
+	if err := ctx.ShouldBindJSON(&input); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
+		return
+	}
+
+	boardIDParam := ctx.Param("boardID")
+	boardID, err := strconv.ParseUint(boardIDParam, 10, 64)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid board ID"})
+		return
+	}
+
+	if err := c.boardUseCase.UpdateBoard(ctx, boardID, &input); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update board"})
+		return
+	}
+
+	ctx.JSON(http.StatusNoContent, gin.H{"message": ""})
 
 }
