@@ -28,6 +28,7 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	boards := r.Group("/boards")
 	{
 		boards.POST("", boardController.CreateBoard)
+		boards.GET("", boardController.GetBoard)
 	}
 
 	return r

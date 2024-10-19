@@ -35,3 +35,16 @@ func (c *BoardController) CreateBoard(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusCreated, gin.H{"message": "Board created successfully"})
 }
+
+func (c *BoardController) GetBoard(ctx *gin.Context) {
+
+	boards, err := c.boardUseCase.GetBoard(context.Background())
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve boards"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"boards": boards})
+
+}
