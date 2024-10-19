@@ -1,15 +1,18 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
+	"go-practice/model"
+	"go-practice/router"
 	"log"
 
 	"os"
 
-	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
+	"gorm.io/driver/mysql"
+
+	"gorm.io/gorm"
 )
 
 func main() {
@@ -26,26 +29,33 @@ func main() {
 	database := os.Getenv("DB_NAME")
 
 	// Create the DSN from environment variables
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", user, password, host, port, database)
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", user, password, host, port, database)
 
-	db, err := sql.Open("mysql", dsn)
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
-
-	err = db.Ping()
-	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Failed to connect to the database:", err)
 	}
 
-	fmt.Println("Connected to MySQL!")
+	sqlDB, err := db.DB()
+	if err != nil {
+		log.Fatal("Failed to get *sql.DB from GORM:", err)
+	}
 
-	r := gin.Default()
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
-	r.Run()
+	if err := sqlDB.Ping(); err != nil {
+		log.Fatal("Failed to connect to the database:", err)
+	}
+
+	fmt.Println("Connected to MySQL using GORM!")
+
+	r := router.SetupRouter(db)
+
+	err = db.AutoMigrate(&model.Board{})
+	if err != nil {
+		log.Fatal("Failed to migrate table:", err)
+	}
+
+	if err := r.Run(":8080"); err != nil {
+		log.Fatal("Server failed to start:", err)
+	}
+
 }
