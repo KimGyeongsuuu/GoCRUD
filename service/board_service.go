@@ -16,13 +16,17 @@ func NewBoardService(boardRepo model.BoardRepository) model.BoardUseCase {
 	}
 }
 
-func (u *BoardService) CreateBoard(ctx context.Context, input *input.CreateBoardInput) error {
+func (service *BoardService) CreateBoard(ctx context.Context, input *input.CreateBoardInput) error {
 
 	board := &model.Board{
 		Title:   input.Title,
 		Content: input.Content,
 	}
 
-	return u.boardRepo.CreateBoard(ctx, board)
+	return service.boardRepo.CreateBoard(ctx, board)
 
+}
+
+func (service *BoardService) GetBoard(ctx context.Context) ([]model.Board, error) {
+	return service.boardRepo.FindAllBoard(ctx)
 }

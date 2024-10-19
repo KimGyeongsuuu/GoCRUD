@@ -21,3 +21,9 @@ func (r *BoardRepository) CreateBoard(ctx context.Context, board *model.Board) e
 	result := r.db.WithContext(ctx).Create(board)
 	return result.Error
 }
+
+func (r *BoardRepository) FindAllBoard(ctx context.Context) ([]model.Board, error) {
+	var boards []model.Board
+	result := r.db.WithContext(ctx).Find(&boards)
+	return boards, result.Error
+}
