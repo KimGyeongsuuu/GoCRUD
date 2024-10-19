@@ -16,7 +16,7 @@ func NewBoardService(boardRepo model.BoardRepository) model.BoardUseCase {
 	}
 }
 
-func (service *BoardService) CreateBoard(ctx context.Context, input *input.CreateBoardInput) error {
+func (service *BoardService) CreateBoard(ctx context.Context, input *input.BoardInput) error {
 
 	board := &model.Board{
 		Title:   input.Title,
@@ -33,4 +33,13 @@ func (service *BoardService) GetBoard(ctx context.Context) ([]model.Board, error
 
 func (service *BoardService) DeleteBoard(ctx context.Context, boardId uint64) error {
 	return service.boardRepo.DeleteBoard(ctx, boardId)
+}
+
+func (service *BoardService) UpdateBoard(ctx context.Context, boardId uint64, input *input.BoardInput) error {
+	board := &model.Board{
+		Title:   input.Title,
+		Content: input.Content,
+	}
+
+	return service.boardRepo.UpdateBoard(ctx, boardId, board)
 }

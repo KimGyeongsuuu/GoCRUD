@@ -39,3 +39,23 @@ func (r *BoardRepository) DeleteBoard(ctx context.Context, boardId uint64) error
 	return result.Error
 
 }
+
+func (r *BoardRepository) UpdateBoard(ctx context.Context, boardId uint64, board *model.Board) error {
+	var existingBoard model.Board
+
+	if err := r.db.WithContext(ctx).First(&existingBoard, boardId).Error; err != nil {
+		return err
+	}
+
+	existingBoard.Title = board.Title
+	existingBoard.Content = board.Content
+
+	result := r.db.WithContext(ctx).Save(&existingBoard)
+
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+
+	return result.Error
+
+}

@@ -30,6 +30,8 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 		boards.POST("", boardController.CreateBoard)
 		boards.GET("", boardController.GetBoard)
 		boards.DELETE("/:boardID", boardController.DeleteBoard)
+		boards.PATCH("/:boardID", boardController.UpdateBoard)
+
 	}
 
 	return r
